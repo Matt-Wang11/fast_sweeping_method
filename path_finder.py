@@ -46,7 +46,7 @@ class PathFinder:
         return neighbors[min(list(neighbors.keys()))]
 
     def __source_found(self, point: tuple[int]) -> bool:
-        return self.grid[point[0], point[1]] == 0
+        return self.grid[point[1], point[0]] == 0
 
 
 if __name__ == "__main__":
