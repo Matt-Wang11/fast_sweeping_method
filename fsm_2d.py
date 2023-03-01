@@ -1,6 +1,10 @@
 import numpy as np
 import threading
 
+"""
+Something wrong with cost function value combining with equation. 
+Check coordinate with math, coordinates start with 0,0 at top left
+"""
 
 class FastSweepingMethodTwoDimension:
 
@@ -50,6 +54,15 @@ class FastSweepingMethodTwoDimension:
         third_sweep.join()
         fourth_sweep.join()
 
+        self.print_formatted_grid(first_sweep.grid)
+        print()
+        self.print_formatted_grid(second_sweep.grid)
+        print()
+        self.print_formatted_grid(third_sweep.grid)
+        print()
+        self.print_formatted_grid(fourth_sweep.grid)
+        print()
+
         self.__join_grids(first_sweep.grid, second_sweep.grid,
                         third_sweep.grid, fourth_sweep.grid)
 
@@ -58,10 +71,10 @@ class FastSweepingMethodTwoDimension:
             for i in range(self.dim):
                 self.grid[j, i] = min(g1[j, i], g2[j, i], g3[j, i], g4[j, i])
 
-    def print_formatted_grid(self):
-        for row in self.grid:
+    def print_formatted_grid(self, g, format="%7.3f"):
+        for row in g:
             for n in row:
-                print("%7.3f" % n, end=" ")
+                print(format % n, end=" ")
             print()
 
 
@@ -112,7 +125,7 @@ class Sweep(threading.Thread):
 
 
 if __name__ == "__main__":
-    f = lambda i, j: (i+1)**2 + (j+1)**2
+    f = lambda i, j: (i+1)
     h = 1
     dimension = 7
     p1 = (3, 3)
@@ -120,4 +133,4 @@ if __name__ == "__main__":
     fsm = FastSweepingMethodTwoDimension(f, h, dimension, p1)
 
     fsm.solve()
-    fsm.print_formatted_grid()
+    fsm.print_formatted_grid(fsm.grid)
