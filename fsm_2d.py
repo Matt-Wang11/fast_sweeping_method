@@ -5,18 +5,19 @@ import threading
 class FastSweepingMethodTwoDimension:
 
     """
-    :param f: The cost function (currently only supporting constants)
+    :param f: The cost function
     :param h: The distance between each discretized point
     :param dim: size of one side of the square grid
     :param points: points to calculate distance for 2d tuple
     """
 
-    def __init__(self, func_i_j, h: int, dim: int, *points: tuple) -> None:
+    def __init__(self, func_i_j, h: int, dim: int, 
+                 *points: tuple, fill_value=1e10) -> None:
         self.dim = dim
         self.func_i_j = func_i_j
         self.h = h
         self.grid = np.full(
-            shape=(dim, dim), fill_value=1e10, dtype=np.float64)
+            shape=(dim, dim), fill_value=fill_value, dtype=np.float64)
 
         # Set the fixed points
         for i, j in points:
