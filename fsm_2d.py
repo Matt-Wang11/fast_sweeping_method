@@ -125,6 +125,7 @@ class Sweep(threading.Thread):
 
 
 if __name__ == "__main__":
+    # Might be smart to have f already calculated on a grid point and then we access the value
     f = lambda i, j: (i+1)
     h = 1
     dimension = 7
