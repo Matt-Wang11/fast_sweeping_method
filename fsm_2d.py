@@ -13,10 +13,11 @@ class FastSweepingMethodTwoDimension:
     :param h: The distance between each discretized point
     :param dim: size of one side of the square grid
     :param points: points to calculate distance for 2d tuple
+    :param obstacles: 
     """
 
     def __init__(self, func_i_j, h: int, dim: int, 
-                 *points: tuple, obstacles=None, fill_value=1e10) -> None:
+                 *points: tuple, obstacles :list[list[int]], fill_value=1e10) -> None:
         self.dim = dim
         self.func_i_j = self.calculate_f(func_i_j, obstacles)
         self.h = h
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     dimension = 7
     p1 = (3, 3)
 
-    fsm = FastSweepingMethodTwoDimension(f, h, dimension, p1)
+    fsm = FastSweepingMethodTwoDimension(f, h, dimension, p1, obstacles=None)
 
     fsm.solve()
     fsm.print_formatted_grid(fsm.grid)
