@@ -16,9 +16,9 @@ class FastSweepingMethodTwoDimension:
     """
 
     def __init__(self, func_i_j, h: int, dim: int, 
-                 *points: tuple, fill_value=1e10) -> None:
+                 *points: tuple, obstacles=None, fill_value=1e10) -> None:
         self.dim = dim
-        self.func_i_j = self.calculate_f(func_i_j)
+        self.func_i_j = self.calculate_f(func_i_j, obstacles)
         self.h = h
         self.grid = np.full(
             shape=(dim, dim), fill_value=fill_value, dtype=np.float64)
@@ -27,12 +27,16 @@ class FastSweepingMethodTwoDimension:
         for i, j in points:
             self.grid[j, i] = 0
 
-    def calculate_f(self, f):
+    def calculate_f(self, f, obstacles):
         f_new = np.zeros(shape=(self.dim, self.dim))
 
         for j in range(self.dim):
             for i in range(self.dim):
                 f_new[j, i] = f(i, j)
+
+        if obstacles is not None:
+            for (i, j) in obstacles:
+                f_new[j, i] = np.inf
 
         return f_new
 
