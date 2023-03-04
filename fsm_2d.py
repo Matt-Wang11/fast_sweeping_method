@@ -18,7 +18,7 @@ class FastSweepingMethodTwoDimension:
     def __init__(self, func_i_j, h: int, dim: int, 
                  *points: tuple, fill_value=1e10) -> None:
         self.dim = dim
-        self.func_i_j = func_i_j
+        self.func_i_j = self.calculate_f(func_i_j)
         self.h = h
         self.grid = np.full(
             shape=(dim, dim), fill_value=fill_value, dtype=np.float64)
@@ -26,6 +26,15 @@ class FastSweepingMethodTwoDimension:
         # Set the fixed points
         for i, j in points:
             self.grid[j, i] = 0
+
+    def calculate_f(self, f):
+        f_new = np.zeros(shape=(self.dim, self.dim))
+
+        for j in range(self.dim):
+            for i in range(self.dim):
+                f_new[j, i] = f(i, j)
+
+        return f_new
 
     def solve(self) -> None:
         # Up-Right
@@ -53,15 +62,6 @@ class FastSweepingMethodTwoDimension:
         second_sweep.join()
         third_sweep.join()
         fourth_sweep.join()
-
-        self.print_formatted_grid(first_sweep.grid)
-        print()
-        self.print_formatted_grid(second_sweep.grid)
-        print()
-        self.print_formatted_grid(third_sweep.grid)
-        print()
-        self.print_formatted_grid(fourth_sweep.grid)
-        print()
 
         self.__join_grids(first_sweep.grid, second_sweep.grid,
                         third_sweep.grid, fourth_sweep.grid)
@@ -99,13 +99,12 @@ class Sweep(threading.Thread):
                 )
 
     def __u_new(self, u_x, u_y, i, j):
-        if (np.abs(u_x-u_y) >= self.h * self.f(i, j)):
-            return min(u_x, u_y) + self.f(i, j) * self.h
+        if (np.abs(u_x-u_y) >= self.h * self.f[j, i]):
+            return min(u_x, u_y) + self.f[j, i] * self.h
         else:
             return np.divide(u_x + u_y + 
-                             np.sqrt(2.0 * self.f(i, j)**2 * self.h**2 - 
-                                     (u_x-u_y)**2), 
-                             2.0)
+                             np.sqrt(2.0 * self.f[j, i]**2 * self.h**2 - 
+                                     (u_x-u_y)**2), 2.0)
 
     def __x_min(self, i, j):
         if i - 1 < 0:
@@ -125,8 +124,7 @@ class Sweep(threading.Thread):
 
 
 if __name__ == "__main__":
-    # Might be smart to have f already calculated on a grid point and then we access the value
-    f = lambda i, j: (i+1)
+    f = lambda i, j: (i+1)**2 + (j+1)**2
     h = 1
     dimension = 7
     p1 = (3, 3)
