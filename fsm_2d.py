@@ -16,8 +16,10 @@ class FastSweepingMethodTwoDimension:
     :param obstacles: 
     """
 
-    def __init__(self, func_i_j, h: int, dim: int, 
-                 *points: tuple, obstacles :list[list[int]], fill_value=1e10) -> None:
+    def __init__(self, func_i_j, h: int, dim: int, points: tuple[tuple[int]], 
+                 obstacles: tuple[tuple[int]], fill_value=1e10) -> None:
+        if isinstance(points[0], int):
+            points = (points,)
         self.dim = dim
         self.func_i_j = self.calculate_f(func_i_j, obstacles)
         self.h = h
@@ -34,42 +36,48 @@ class FastSweepingMethodTwoDimension:
         for j in range(self.dim):
             for i in range(self.dim):
                 f_new[j, i] = f(i, j)
-
+        
         if obstacles is not None:
+            if isinstance(obstacles[0], int):
+                obstacles = (obstacles,)
+
             for (i, j) in obstacles:
                 f_new[j, i] = np.inf
 
         return f_new
 
-    def solve(self) -> None:
-        # Up-Right
-        first_sweep = Sweep(np.copy(self.grid), self.func_i_j, self.h,
-                            (0, self.dim, 1), (self.dim-1, -1, -1))
+    def solve(self, n=4) -> None:
+        for _ in range(n):
+            temp_grid = np.copy(self.grid)
 
-        # Up-Left
-        second_sweep = Sweep(np.copy(self.grid), self.func_i_j, self.h,
-                             (self.dim-1, -1, -1), (self.dim-1, -1, -1))
+            # Up-Right
+            first_sweep = Sweep(temp_grid, self.func_i_j, self.h,
+                                (0, self.dim, 1), (self.dim-1, -1, -1))
 
-        # Down-Right
-        third_sweep = Sweep(np.copy(self.grid), self.func_i_j, self.h,
-                            (0, self.dim, 1), (0, self.dim, 1))
+            # Up-Left
+            second_sweep = Sweep(temp_grid, self.func_i_j, self.h,
+                                (self.dim-1, -1, -1), (self.dim-1, -1, -1))
 
-        # Down-Left
-        fourth_sweep = Sweep(np.copy(self.grid), self.func_i_j, self.h, 
-                             (self.dim-1, -1, -1), (0, self.dim, 1))
+            # Down-Right
+            third_sweep = Sweep(temp_grid, self.func_i_j, self.h,
+                                (0, self.dim, 1), (0, self.dim, 1))
 
-        first_sweep.start()
-        second_sweep.start()
-        third_sweep.start()
-        fourth_sweep.start()
+            # Down-Left
+            fourth_sweep = Sweep(temp_grid, self.func_i_j, self.h, 
+                                (self.dim-1, -1, -1), (0, self.dim, 1))
 
-        first_sweep.join()
-        second_sweep.join()
-        third_sweep.join()
-        fourth_sweep.join()
+            first_sweep.start()
+            second_sweep.start()
+            third_sweep.start()
+            fourth_sweep.start()
 
-        self.__join_grids(first_sweep.grid, second_sweep.grid,
-                        third_sweep.grid, fourth_sweep.grid)
+            first_sweep.join()
+            second_sweep.join()
+            third_sweep.join()
+            fourth_sweep.join()
+
+            self.__join_grids(first_sweep.grid, second_sweep.grid,
+                            third_sweep.grid, fourth_sweep.grid)
 
     def __join_grids(self, g1, g2, g3, g4) -> None:
         for j in range(self.dim):
@@ -129,12 +137,13 @@ class Sweep(threading.Thread):
 
 
 if __name__ == "__main__":
-    f = lambda i, j: (i+1)**2 + (j+1)**2
-    h = 1
-    dimension = 7
-    p1 = (3, 3)
+    # f, h, dim, points, obstacles, fill_value
+    arg1 = (lambda i, j: (i+1)**2 + (j+1)**2, 1, 7, (1, 1), None)
+    arg2 = (lambda i, j: 1, 1, 7, (1, 1), None)
+    arg3 = (lambda i, j: (i+1)**2 + (j+1)**2, 1, 7, (3, 3), None)
+    arg4 = (lambda i, j: 1, 1, 7, ((1, 1), (4, 5)), None)
 
-    fsm = FastSweepingMethodTwoDimension(f, h, dimension, p1, obstacles=None)
+    fsm = FastSweepingMethodTwoDimension(*arg4)
 
-    fsm.solve()
+    fsm.solve(n=4)
     fsm.print_formatted_grid(fsm.grid)
