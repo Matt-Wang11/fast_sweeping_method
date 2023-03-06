@@ -2,68 +2,73 @@ import pygame
 
 # figure out mouse click and get coordinate of the box for clicking
 # Implement pygame.time.get_ticks() to time program and space out the path advancement
+class FSM_GUI:
 
-def draw_rectangles(s, x, y, p_l, p_g, c=(255, 255, 255)):
-    for i in range(x):
-        for j in range(y):
-            pygame.draw.rect(surface=s, color=c,
-                             rect=pygame.Rect(p_l + (i * p_l) + (i * p_g), 
-                                              p_l + (j * p_l) + (j * p_g), 
-                                              p_g, p_g))
+    def __init__(self, x_len, y_len, pixels_per_grid, pixels_per_line) -> None:
+        self.x = x_len
+        self.y = y_len
+        self.p_g = pixels_per_grid
+        self.p_l = pixels_per_line
 
-def is_in_rectangle(mouse_x, mouse_y, left, top, right, down):
-    return mouse_x > left and mouse_x < right and \
-        mouse_y > top and mouse_y < down
+    def draw_rectangles(self, s, c=(255, 255, 255)):
+        for i in range(self.x):
+            for j in range(self.y):
+                pygame.draw.rect(surface=s, color=c,
+                                rect=pygame.Rect(self.__get_edge(i), 
+                                                 self.__get_edge(j), 
+                                                 self.p_g, self.p_g))
 
-def rectangle_clicked(mouse_x, mouse_y, left, top, p_g, event):
-    return is_in_rectangle(mouse_x, mouse_y, left, top, left + p_g, top + p_g)\
-    and event.type == pygame.MOUSEBUTTONDOWN
+    def is_in_rectangle(self, mouse_x, mouse_y, left, top, right, down):
+        return mouse_x > left and mouse_x < right and \
+            mouse_y > top and mouse_y < down
 
-def click(s, x, y, mouse_x, mouse_y, p_l, p_g, c, event):
-    coordinates = list
+    def rectangle_clicked(self, mouse_x, mouse_y, left, top, event):
+        return self.is_in_rectangle(mouse_x, mouse_y, left, top, left + self.p_g, top + self.p_g)\
+        and event.type == pygame.MOUSEBUTTONDOWN
 
-    for i in range(x):
-        for j in range(y):
-            left = p_l + (i * p_l) + (i * p_g)
-            top = p_l + (j * p_l) + (j * p_g)
+    def click(self, s, mouse_x, mouse_y, c, event):
+        coordinates = list
 
-            if rectangle_clicked(mouse_x, mouse_y, left, top, p_g, event):
-                pygame.draw.rect(surface=s, color=c, 
-                                 rect=pygame.Rect(left, top, p_g, p_g))
-                coordinates = [i, j]
-                break;
-    
-    return coordinates
+        for i in range(self.x):
+            for j in range(self.y):
+                left = self.__get_edge(i)
+                top = self.__get_edge(j)
 
-def main():
-    x_len = 50
-    y_len = 50
-    pixels_per_grid = 10
-    pixels_per_line = 1
+                if self.rectangle_clicked(mouse_x, mouse_y, left, top, event):
+                    pygame.draw.rect(surface=s, color=c, 
+                                    rect=pygame.Rect(left, top, self.p_g, self.p_g))
+                    coordinates = [i, j]
+                    break;
+        
+        return coordinates
 
-    pygame.init()
+    def run(self):
+        pygame.init()
 
-    screen = pygame.display.set_mode(
-        [x_len * pixels_per_grid + (x_len+1) * pixels_per_line,
-        y_len * pixels_per_grid + (y_len+1) * pixels_per_line])
+        screen = pygame.display.set_mode(
+            [self.x * self.p_g + (self.x + 1) * self.p_l,
+            self.y * self.p_g + (self.y + 1) * self.p_l])
 
-    is_running = True
-    draw_rectangles(screen, x_len, y_len, pixels_per_line, pixels_per_grid)
+        is_running = True
+        self.draw_rectangles(screen)
 
-    while is_running:
-        mouse = pygame.mouse.get_pos()
+        while is_running:
+            mouse = pygame.mouse.get_pos()
 
-        for event in pygame.event.get():
-            click(screen, x_len, y_len, mouse[0], mouse[1], 
-                  pixels_per_line, pixels_per_grid, (0, 255, 0), event)
-            
-            if event.type == pygame.QUIT:
-                is_running = False
+            for event in pygame.event.get():
+                self.click(screen, mouse[0], mouse[1], (0, 255, 0), event)
+                
+                if event.type == pygame.QUIT:
+                    is_running = False
 
-        pygame.display.flip()
+            pygame.display.flip()
 
-    pygame.quit()
+        pygame.quit()
+
+    def __get_edge(self, n):
+        return self.p_l + (n * self.p_l) + (n * self.p_g)
 
 
 if __name__ == "__main__":
-    main()
+    app = FSM_GUI(50, 50, 10, 1)
+    app.run()

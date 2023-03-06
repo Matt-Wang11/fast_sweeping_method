@@ -2,10 +2,6 @@ import numpy as np
 import threading
 from image_output import img_output
 
-"""
-Something wrong with cost function value combining with equation. 
-Check coordinate with math, coordinates start with 0,0 at top left
-"""
 
 class FastSweepingMethodTwoDimension:
 

@@ -5,18 +5,19 @@ class PathFinder:
 
     def __init__(self, grid: list[float]) -> None:
         self.grid = grid
+        self.path = []
         self.x_len = len(grid[0])
         self.y_len = len(grid)
 
     def find_path(self, point: tuple[int]) -> list[float]:
-        path = [point]
+        self.path.append(point)
         index = 0
 
-        while not self.__source_found(path[index]):
-            path.append(self.__find_smallest_neighbor(*path[index]))
+        while not self.__source_found(self.path[index]):
+            self.path.append(self.__find_smallest_neighbor(*self.path[index]))
             index += 1
 
-        return path
+        return self.path
 
     '''
     :param i: x coordinate
