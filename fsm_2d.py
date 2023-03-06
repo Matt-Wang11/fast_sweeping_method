@@ -1,5 +1,6 @@
 import numpy as np
 import threading
+from image_output import img_output
 
 """
 Something wrong with cost function value combining with equation. 
@@ -142,8 +143,10 @@ if __name__ == "__main__":
     arg2 = (lambda i, j: 1, 1, 7, (1, 1), None)
     arg3 = (lambda i, j: (i+1)**2 + (j+1)**2, 1, 7, (3, 3), None)
     arg4 = (lambda i, j: 1, 1, 7, ((1, 1), (4, 5)), None)
+    arg5 = (lambda i, j: np.sin(i)+1, 1, 11, ((5, 5)), None)
+    arg6 = (lambda i, j: 1, 1, 11, ((0, 5)), ((5, 2), (5, 3), (5, 4), (5, 5), (5, 6)))
 
-    fsm = FastSweepingMethodTwoDimension(*arg4)
+    fsm = FastSweepingMethodTwoDimension(*arg6)
 
     fsm.solve(n=4)
     fsm.print_formatted_grid(fsm.grid)
